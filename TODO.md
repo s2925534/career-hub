@@ -31,18 +31,18 @@ committed, and pushed.
 
 ## Phase 1: MVP Code Foundation
 
-- [ ] `.env.example`.
-- [ ] `.gitignore`.
-- [ ] Docker Compose.
-- [ ] Basic FastAPI app or equivalent.
-- [ ] Basic SQLite database setup.
-- [ ] Folder creation script.
-- [ ] Bootstrap script.
-- [ ] Health check script.
-- [ ] Backup script.
-- [ ] Initial local-only startup.
-- [ ] Basic validation.
-- [ ] Commit and push.
+- [x] `.env.example`.
+- [x] `.gitignore`.
+- [x] Docker Compose.
+- [x] Basic FastAPI app or equivalent.
+- [x] Basic SQLite database setup.
+- [x] Folder creation script.
+- [x] Bootstrap script.
+- [x] Health check script.
+- [x] Backup script.
+- [x] Initial local-only startup.
+- [x] Basic validation.
+- [x] Commit and push.
 
 ## Phase 2: Candidate Profile and Preferences
 

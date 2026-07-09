@@ -1,0 +1,27 @@
+services:
+  career-hub:
+    build: .
+    image: career-hub:local
+    container_name: career-hub
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      # Ensure the app binds inside the container regardless of what CAREER_HUB_BIND_HOST
+      # is set to for the *host* port mapping below (0.0.0.0 is always correct in-container).
+      CAREER_HUB_BIND_HOST: 0.0.0.0
+    ports:
+      # CAREER_HUB_BIND_HOST here controls which host interface this is published on
+      # (0.0.0.0 for LAN-only/local testing, 127.0.0.1 to keep it local-machine-only).
+      # Public internet exposure is never configured here -- see docs/deployer-integration.md.
+      - "${CAREER_HUB_BIND_HOST:-0.0.0.0}:${CAREER_HUB_HTTP_PORT:-8088}:${CAREER_HUB_HTTP_PORT:-8088}"
+    volumes:
+      # CAREER_HUB_BASE_PATH is never a fixed Synology volume path -- see .env.example
+      # and docs/deployer-integration.md. The deployer decides the host-side path.
+      - ${CAREER_HUB_BASE_PATH:-./data/career-hub}:/data/career-hub
+    healthcheck:
+      test: ["CMD-SHELL", "python -c \"import urllib.request,os; urllib.request.urlopen('http://localhost:' + os.environ.get('CAREER_HUB_HTTP_PORT', '8088') + '/health')\""]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
