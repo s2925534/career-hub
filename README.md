@@ -13,10 +13,12 @@ Pedro Veloso — pedro@veloso.dev
 ## What This Is
 
 Career Hub is a generic, open-source, self-hostable application. It is **not** tied to any
-specific person, company, or domain. The examples in this repo (`jobs.veloso.dev`,
-`cv.veloso.dev`) are one maintainer's personal deployment — you should replace them with your
-own hostnames. Nothing in the code, package name, or documentation should be read as
-"only works for veloso.dev". If you find such a reference, it's a bug — please report or fix it.
+specific person, company, or domain. The examples in this repo use generic placeholder
+hostnames (`jobs.example.com`, `cv.example.com`) — swap them for your own. Where you see
+`jobs.veloso.dev` / `cv.veloso.dev` in a doc, that's one maintainer's own personal deployment,
+called out explicitly as a "personal example," never as a default. Nothing in the code, package
+name, or documentation should be read as "only works for veloso.dev". If you find such a
+reference, it's a bug — please report or fix it.
 
 Career Hub has two faces:
 
