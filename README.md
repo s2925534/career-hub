@@ -6,6 +6,10 @@ you own, running on your own infrastructure.
 
 > **Status:** Phase 0 (planning) / early Phase 1 (minimal code foundation). Not production-ready.
 
+## Developer
+
+Pedro Veloso — pedro@veloso.dev
+
 ## What This Is
 
 Career Hub is a generic, open-source, self-hostable application. It is **not** tied to any
@@ -162,4 +166,6 @@ and [`TODO.md`](TODO.md) for the full breakdown and current status.
 
 ## License
 
-MIT. See [`LICENSE`](LICENSE). Contributions and forks for other people's own career hubs are welcome.
+MIT. See [`LICENSE`](LICENSE). Free to use, modify, and self-host, with no warranties —
+the software is provided "as is", without warranty of any kind, express or implied.
+Contributions and forks for other people's own career hubs are welcome.
