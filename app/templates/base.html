@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{ page_title }} · Career Hub</title>
+  <style>
+    body { font-family: system-ui, sans-serif; max-width: 720px; margin: 2rem auto; padding: 0 1rem; color: #1a1a1a; }
+    nav a { margin-right: 1rem; }
+    .badge { display: inline-block; padding: 0.15rem 0.5rem; border-radius: 0.25rem; background: #eee; font-size: 0.8rem; }
+    footer { margin-top: 3rem; font-size: 0.85rem; color: #666; }
+  </style>
+</head>
+<body>
+  {% block nav %}{% endblock %}
+  <main>
+    <h1>{{ page_title }}</h1>
+    {% block content %}{% endblock %}
+  </main>
+  <footer>Career Hub &mdash; Phase 1 placeholder page.</footer>
+</body>
+</html>

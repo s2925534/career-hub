@@ -1,0 +1,41 @@
+# Environment / secrets
+.env
+.env.*.local
+secrets/
+
+# Runtime data / persistent storage (local default path)
+data/
+backups/
+logs/
+
+# Database files
+*.sqlite3
+*.sqlite3-journal
+*.db
+
+# Uploaded / generated / exported career documents (never committed)
+uploads/
+generated/
+exports/
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+build/
+dist/
+
+# IDE
+.idea/
+.vscode/
+
+# OS
+.DS_Store
+
+# Auto-generated todo ledger view
+TODO.html
