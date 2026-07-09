@@ -3,6 +3,10 @@
 .env.*.local
 secrets/
 
+# Personal branding/deployment reference (real domains, contact info) -- never committed.
+# See README.md's "What This Is" section for why tracked docs stay generic instead.
+BRANDING.md
+
 # Runtime data / persistent storage (local default path)
 data/
 backups/
