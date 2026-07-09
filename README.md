@@ -160,6 +160,14 @@ and [`TODO.md`](TODO.md) for the full breakdown and current status.
 | [`docs/troubleshooting.md`](docs/troubleshooting.md) | Common problems and fixes |
 | [`docs/future-flags.md`](docs/future-flags.md) | Full catalog of feature flags, current and future |
 
+## Developer
+
+Pedro Veloso — [pedro@veloso.dev](mailto:pedro@veloso.dev)
+
 ## License
 
 MIT. See [`LICENSE`](LICENSE). Contributions and forks for other people's own career hubs are welcome.
+
+This is a free, open-source tool provided **as-is, with no warranties of any kind, express or
+implied**. The author accepts no liability for damages or losses arising from its use. See the
+[MIT License](LICENSE) for full terms.
