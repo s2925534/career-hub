@@ -1,5 +1,169 @@
 {% extends "private/_base.html" %}
 {% block content %}
-<p>Placeholder for the candidate profile form (Phase 2). See
-<code>docs/profile-and-preferences.md</code>.</p>
+<p>Candidate profile, skills, and CV/template uploads. See
+<code>docs/profile-and-preferences.md</code> for the full field model this is drawn from.
+Nothing here is ever shown on the public CV site until explicitly published (Phase 6&ndash;7).</p>
+
+{% if saved %}
+<p class="flash">Saved.</p>
+{% endif %}
+
+<section>
+  <h2>Candidate Profile</h2>
+  <form method="post" action="/profile">
+    <div class="field">
+      <label for="name">Name</label>
+      <input type="text" id="name" name="name" value="{{ profile.name or '' }}">
+    </div>
+    <div class="field">
+      <label for="location">Location</label>
+      <input type="text" id="location" name="location" value="{{ profile.location or '' }}">
+    </div>
+    <div class="field">
+      <label for="work_rights">Work rights</label>
+      <input type="text" id="work_rights" name="work_rights" value="{{ profile.work_rights or '' }}"
+             placeholder="e.g. Australian citizen, full working rights">
+    </div>
+    <div class="field">
+      <label for="currently_looking">Job search status</label>
+      <select id="currently_looking" name="currently_looking">
+        <option value="looking" {% if profile.currently_looking == 'looking' %}selected{% endif %}>Currently looking</option>
+        <option value="open" {% if profile.currently_looking == 'open' %}selected{% endif %}>Open to offers</option>
+        <option value="not_looking" {% if profile.currently_looking == 'not_looking' or not profile.currently_looking %}selected{% endif %}>Not looking</option>
+      </select>
+    </div>
+    <div class="field">
+      <label for="availability_start_date">Availability / start date</label>
+      <input type="text" id="availability_start_date" name="availability_start_date"
+             value="{{ profile.availability_start_date or '' }}" placeholder="e.g. Immediately, or 2026-08-01">
+    </div>
+    <div class="field">
+      <label for="visa_details">Visa / work authorization details</label>
+      <input type="text" id="visa_details" name="visa_details" value="{{ profile.visa_details or '' }}">
+    </div>
+    <div class="field">
+      <label for="references_available">References available</label>
+      <select id="references_available" name="references_available">
+        <option value="yes" {% if profile.references_available == 'yes' %}selected{% endif %}>Yes</option>
+        <option value="no" {% if profile.references_available == 'no' %}selected{% endif %}>No</option>
+        <option value="unspecified" {% if profile.references_available == 'unspecified' or not profile.references_available %}selected{% endif %}>Unspecified</option>
+      </select>
+    </div>
+    <div class="field">
+      <label for="portfolio_links">Portfolio links</label>
+      <input type="text" id="portfolio_links" name="portfolio_links" value="{{ profile.portfolio_links or '' }}"
+             placeholder="comma-separated URLs">
+    </div>
+    <div class="field">
+      <label for="github_link">GitHub link</label>
+      <input type="text" id="github_link" name="github_link" value="{{ profile.github_link or '' }}">
+    </div>
+    <div class="field">
+      <label for="linkedin_link">LinkedIn link</label>
+      <input type="text" id="linkedin_link" name="linkedin_link" value="{{ profile.linkedin_link or '' }}">
+    </div>
+    <div class="field">
+      <label for="personal_site_link">Personal site link</label>
+      <input type="text" id="personal_site_link" name="personal_site_link" value="{{ profile.personal_site_link or '' }}">
+    </div>
+    <button type="submit">Save profile</button>
+  </form>
+</section>
+
+<section id="skills">
+  <h2>Skills</h2>
+  {% if skills %}
+  <table>
+    <thead><tr><th>Name</th><th>Category</th><th>Visibility</th><th></th></tr></thead>
+    <tbody>
+      {% for skill in skills %}
+      <tr>
+        <td>{{ skill.name }}</td>
+        <td>{{ skill.category }}</td>
+        <td><span class="badge">{{ skill.visibility }}</span></td>
+        <td>
+          <form method="post" action="/profile/skills/{{ skill.id }}/delete" style="display:inline">
+            <button type="submit">Remove</button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p>No skills added yet.</p>
+  {% endif %}
+
+  <form method="post" action="/profile/skills">
+    <div class="field">
+      <label for="skill_name">Skill name</label>
+      <input type="text" id="skill_name" name="name" required placeholder="e.g. Python">
+    </div>
+    <div class="field">
+      <label for="skill_category">Category</label>
+      <input type="text" id="skill_category" name="category" placeholder="e.g. Language, Framework, Tool">
+    </div>
+    <div class="field">
+      <label for="skill_visibility">Visibility</label>
+      <select id="skill_visibility" name="visibility">
+        {% for choice in visibility_choices %}
+        <option value="{{ choice }}" {% if choice == 'private' %}selected{% endif %}>{{ choice }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <button type="submit">Add skill</button>
+  </form>
+</section>
+
+<section id="documents">
+  <h2>CV / Template Documents</h2>
+  <p>Placeholder upload &mdash; stored privately under <code>uploads/</code>. Full versioning,
+  generation, and publish workflow lands in Phase 7 (<code>docs/resume-versioning.md</code>).</p>
+  {% if documents %}
+  <table>
+    <thead><tr><th>Kind</th><th>File</th><th>Visibility</th><th>Uploaded</th><th></th></tr></thead>
+    <tbody>
+      {% for doc in documents %}
+      <tr>
+        <td>{{ doc.kind }}</td>
+        <td>{{ doc.original_filename }}</td>
+        <td><span class="badge">{{ doc.visibility }}</span></td>
+        <td>{{ doc.created_at }}</td>
+        <td>
+          <form method="post" action="/profile/documents/{{ doc.id }}/delete" style="display:inline">
+            <button type="submit">Remove</button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p>No documents uploaded yet.</p>
+  {% endif %}
+
+  <form method="post" action="/profile/documents" enctype="multipart/form-data">
+    <div class="field">
+      <label for="doc_kind">Kind</label>
+      <select id="doc_kind" name="kind">
+        <option value="cv">CV</option>
+        <option value="cover_letter">Cover letter template</option>
+        <option value="other">Other</option>
+      </select>
+    </div>
+    <div class="field">
+      <label for="doc_visibility">Visibility</label>
+      <select id="doc_visibility" name="visibility">
+        {% for choice in visibility_choices %}
+        <option value="{{ choice }}" {% if choice == 'private' %}selected{% endif %}>{{ choice }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="field">
+      <label for="doc_file">File</label>
+      <input type="file" id="doc_file" name="file" required>
+    </div>
+    <button type="submit">Upload</button>
+  </form>
+</section>
 {% endblock %}

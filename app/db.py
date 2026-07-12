@@ -21,6 +21,11 @@ def init_db() -> None:
     db_path.parent.mkdir(parents=True, exist_ok=True)
     with sqlite3.connect(db_path) as conn:
         conn.executescript(SCHEMA_PATH.read_text())
+        # candidate_profile and preferences are singletons (id=1) so forms always
+        # have a row to load/update -- see docs/profile-and-preferences.md.
+        conn.execute("INSERT OR IGNORE INTO candidate_profile (id) VALUES (1)")
+        conn.execute("INSERT OR IGNORE INTO preferences (id) VALUES (1)")
+        conn.commit()
 
 
 @contextmanager

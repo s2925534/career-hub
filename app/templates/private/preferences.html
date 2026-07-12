@@ -1,5 +1,87 @@
 {% extends "private/_base.html" %}
 {% block content %}
-<p>Placeholder for job search preferences (Phase 2). See
-<code>docs/profile-and-preferences.md</code>.</p>
+<p>Job search preferences used later by the rule-based matching engine (Phase 4). See
+<code>docs/profile-and-preferences.md</code> ("Job Preferences") and
+<code>docs/application-workflow.md</code>.</p>
+
+{% if saved %}
+<p class="flash">Saved.</p>
+{% endif %}
+
+<form method="post" action="/preferences">
+  <div class="field">
+    <label for="target_role_titles">Target role titles</label>
+    <input type="text" id="target_role_titles" name="target_role_titles"
+           value="{{ preferences.target_role_titles or '' }}" placeholder="comma-separated, e.g. Backend Engineer, Platform Engineer">
+  </div>
+  <div class="field">
+    <label for="target_seniority">Target seniority</label>
+    <input type="text" id="target_seniority" name="target_seniority"
+           value="{{ preferences.target_seniority or '' }}" placeholder="e.g. Senior, Staff">
+  </div>
+  <div class="field">
+    <label for="target_salary_min">Target salary (min)</label>
+    <input type="number" id="target_salary_min" name="target_salary_min"
+           value="{{ preferences.target_salary_min if preferences.target_salary_min is not none else '' }}">
+  </div>
+  <div class="field">
+    <label for="target_salary_max">Target salary (max)</label>
+    <input type="number" id="target_salary_max" name="target_salary_max"
+           value="{{ preferences.target_salary_max if preferences.target_salary_max is not none else '' }}">
+  </div>
+  <div class="field">
+    <label for="minimum_salary">Minimum acceptable salary</label>
+    <input type="number" id="minimum_salary" name="minimum_salary"
+           value="{{ preferences.minimum_salary if preferences.minimum_salary is not none else '' }}">
+  </div>
+  <div class="field">
+    <label for="preferred_locations">Preferred locations</label>
+    <input type="text" id="preferred_locations" name="preferred_locations"
+           value="{{ preferences.preferred_locations or '' }}" placeholder="comma-separated">
+  </div>
+  <div class="field">
+    <label for="work_mode">Remote / hybrid / on-site</label>
+    <select id="work_mode" name="work_mode">
+      <option value="remote" {% if preferences.work_mode == 'remote' %}selected{% endif %}>Remote</option>
+      <option value="hybrid" {% if preferences.work_mode == 'hybrid' %}selected{% endif %}>Hybrid</option>
+      <option value="onsite" {% if preferences.work_mode == 'onsite' %}selected{% endif %}>On-site</option>
+      <option value="any" {% if preferences.work_mode == 'any' or not preferences.work_mode %}selected{% endif %}>Any</option>
+    </select>
+  </div>
+  <div class="field">
+    <label for="industries">Industries</label>
+    <input type="text" id="industries" name="industries" value="{{ preferences.industries or '' }}" placeholder="comma-separated">
+  </div>
+  <div class="field">
+    <label for="preferred_companies">Preferred companies</label>
+    <input type="text" id="preferred_companies" name="preferred_companies"
+           value="{{ preferences.preferred_companies or '' }}" placeholder="comma-separated">
+  </div>
+  <div class="field">
+    <label for="excluded_companies">Excluded companies</label>
+    <input type="text" id="excluded_companies" name="excluded_companies"
+           value="{{ preferences.excluded_companies or '' }}" placeholder="comma-separated">
+  </div>
+  <div class="field">
+    <label for="required_technologies">Required technologies</label>
+    <input type="text" id="required_technologies" name="required_technologies"
+           value="{{ preferences.required_technologies or '' }}" placeholder="comma-separated">
+  </div>
+  <div class="field">
+    <label for="preferred_technologies">Preferred technologies</label>
+    <input type="text" id="preferred_technologies" name="preferred_technologies"
+           value="{{ preferences.preferred_technologies or '' }}" placeholder="comma-separated">
+  </div>
+  <div class="field">
+    <label for="excluded_technologies">Excluded technologies</label>
+    <input type="text" id="excluded_technologies" name="excluded_technologies"
+           value="{{ preferences.excluded_technologies or '' }}" placeholder="comma-separated">
+  </div>
+  <div class="field">
+    <label for="max_commute_minutes">Maximum commute (minutes)</label>
+    <input type="number" id="max_commute_minutes" name="max_commute_minutes"
+           value="{{ preferences.max_commute_minutes if preferences.max_commute_minutes is not none else '' }}">
+  </div>
+  <button type="submit">Save preferences</button>
+</form>
 {% endblock %}

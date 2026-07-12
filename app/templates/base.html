@@ -5,9 +5,18 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{{ page_title }} · Career Hub</title>
   <style>
-    body { font-family: system-ui, sans-serif; max-width: 720px; margin: 2rem auto; padding: 0 1rem; color: #1a1a1a; }
+    body { font-family: system-ui, sans-serif; max-width: 780px; margin: 2rem auto; padding: 0 1rem; color: #1a1a1a; }
     nav a { margin-right: 1rem; }
     .badge { display: inline-block; padding: 0.15rem 0.5rem; border-radius: 0.25rem; background: #eee; font-size: 0.8rem; }
+    section { margin: 2rem 0; }
+    .field { margin-bottom: 0.85rem; display: flex; flex-direction: column; gap: 0.25rem; max-width: 480px; }
+    .field label { font-size: 0.85rem; font-weight: 600; }
+    .field input, .field select { padding: 0.4rem 0.5rem; font-size: 0.95rem; border: 1px solid #ccc; border-radius: 0.25rem; }
+    button { padding: 0.45rem 0.9rem; font-size: 0.9rem; border: 1px solid #333; border-radius: 0.25rem; background: #f4f4f4; cursor: pointer; }
+    button:hover { background: #e8e8e8; }
+    table { border-collapse: collapse; width: 100%; margin: 0.75rem 0; }
+    th, td { text-align: left; padding: 0.4rem 0.6rem; border-bottom: 1px solid #ddd; font-size: 0.9rem; }
+    .flash { display: inline-block; padding: 0.4rem 0.7rem; border-radius: 0.25rem; background: #e3f5e6; color: #1a5c2a; font-size: 0.85rem; }
     footer { margin-top: 3rem; font-size: 0.85rem; color: #666; }
   </style>
 </head>
@@ -17,6 +26,6 @@
     <h1>{{ page_title }}</h1>
     {% block content %}{% endblock %}
   </main>
-  <footer>Career Hub &mdash; Phase 1 placeholder page.</footer>
+  <footer>Career Hub &mdash; self-hosted career management.</footer>
 </body>
 </html>

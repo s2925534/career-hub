@@ -17,7 +17,7 @@ committed, and pushed.
 - [x] Create job source strategy.
 - [x] Create profile and preferences document.
 - [x] Create application workflow document.
-- [x] Create auto-apply guardrails.
+  - [x] Create auto-apply guardrails.
 - [x] Create public CV site document.
 - [x] Create resume versioning document.
 - [x] Create SEO strategy document.
@@ -46,16 +46,16 @@ committed, and pushed.
 
 ## Phase 2: Candidate Profile and Preferences
 
-- [ ] Candidate profile form.
-- [ ] Job search status.
-- [ ] Preferences form.
-- [ ] Skills list.
-- [ ] Target roles.
-- [ ] Salary/location/remote preferences.
-- [ ] Preferred and excluded companies.
-- [ ] CV/template upload placeholders.
-- [ ] Public/private visibility planning.
-- [ ] Commit and push.
+- [x] Candidate profile form.
+- [x] Job search status.
+- [x] Preferences form.
+- [x] Skills list.
+- [x] Target roles.
+- [x] Salary/location/remote preferences.
+- [x] Preferred and excluded companies.
+- [x] CV/template upload placeholders.
+- [x] Public/private visibility planning.
+- [x] Commit and push.
 
 ## Phase 3: Job Tracker
 
