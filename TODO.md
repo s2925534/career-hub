@@ -80,13 +80,13 @@ committed, and pushed.
 
 ## Phase 5: Application Preparation
 
-- [ ] Cover letter draft template.
-- [ ] CV tailoring notes.
-- [ ] Screening answer templates.
-- [ ] Application checklist.
-- [ ] Ready-to-apply queue.
-- [ ] Manual apply tracking.
-- [ ] Commit and push.
+- [x] Cover letter draft template.
+- [x] CV tailoring notes.
+- [x] Screening answer templates.
+- [x] Application checklist.
+- [x] Ready-to-apply queue.
+- [x] Manual apply tracking.
+- [x] Commit and push.
 
 ## Phase 6: Public CV Site Planning and MVP
 

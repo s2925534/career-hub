@@ -1,14 +1,14 @@
 -- Career Hub schema.
 --
 -- career_profile, public_profile, work_experiences, projects, resume_versions,
--- public_cv_versions, applications, contact_messages, seo_metadata, and
--- audit_log are still intentionally minimal placeholder tables (id, timestamps,
--- and a flexible JSON `data` column) -- they belong to later phases (5, 6, 7)
--- and haven't been designed yet. See docs/phase-plan.md.
+-- public_cv_versions, contact_messages, seo_metadata, and audit_log are still
+-- intentionally minimal placeholder tables (id, timestamps, and a flexible
+-- JSON `data` column) -- they belong to later phases (6, 7) and haven't been
+-- designed yet. See docs/phase-plan.md.
 --
 -- candidate_profile, preferences, and skills were promoted to fully modeled
 -- columns in Phase 2, per docs/profile-and-preferences.md. jobs was promoted
--- in Phase 3, per docs/application-workflow.md.
+-- in Phase 3, and applications in Phase 5, both per docs/application-workflow.md.
 --
 -- NOTE: this project has no migration tooling yet (pre-1.0, no real user data).
 -- If you have a local SQLite file from before Phase 2, delete it and let
@@ -131,11 +131,19 @@ CREATE TABLE IF NOT EXISTS jobs (
     updated_at TEXT NOT NULL DEFAULT (datetime('now'))
 );
 
+-- outcome: pending | interview | offer | rejected | withdrawn. One row per job
+-- for the MVP (upserted by job_id when the user records a manual apply) --
+-- see docs/application-workflow.md. follow_up_date here is a post-application
+-- reminder, distinct from jobs.follow_up_date which covers pre-application
+-- reminders (e.g. "check back on this listing").
 CREATE TABLE IF NOT EXISTS applications (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    job_id INTEGER REFERENCES jobs(id),
-    status TEXT NOT NULL DEFAULT 'interested',
-    data TEXT NOT NULL DEFAULT '{}',
+    job_id INTEGER NOT NULL REFERENCES jobs(id),
+    application_date TEXT,
+    application_url TEXT NOT NULL DEFAULT '',
+    contact_person TEXT NOT NULL DEFAULT '',
+    outcome TEXT NOT NULL DEFAULT 'pending',
+    notes TEXT NOT NULL DEFAULT '',
     follow_up_date TEXT,
     created_at TEXT NOT NULL DEFAULT (datetime('now')),
     updated_at TEXT NOT NULL DEFAULT (datetime('now'))

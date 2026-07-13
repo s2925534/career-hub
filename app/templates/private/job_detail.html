@@ -24,6 +24,24 @@
   <p>Rule-based only, no AI &mdash; see <code>docs/phase-plan.md</code> (Phase 4).</p>
 </section>
 
+<section id="prep">
+  <h2>Application Checklist</h2>
+  <ul>
+    {% for item in checklist %}
+    <li>{% if item.done %}&#9745;{% else %}&#9744;{% endif %} {{ item.label }}</li>
+    {% endfor %}
+  </ul>
+
+  <h2>Cover Letter Draft</h2>
+  <p>Generated from stored profile data and the match above &mdash; a starting point, not a
+  final letter. Bracketed notes mark anything not yet stored in your profile; nothing here is
+  invented. See <code>docs/profile-and-preferences.md</code> ("Profile Truthfulness Rules").</p>
+  <textarea readonly rows="12" style="width:100%; max-width:640px; font-family:inherit; padding:0.5rem;">{{ cover_letter_draft }}</textarea>
+
+  <p>Reusable screening answers (work rights, salary, availability, visa) live on the
+  <a href="/applications#screening-answers">Applications</a> page.</p>
+</section>
+
 <section>
   <form method="post" action="/jobs/{{ job.id }}">
     <div class="field">
@@ -63,6 +81,44 @@
       <textarea id="notes" name="notes" rows="6">{{ job.notes or '' }}</textarea>
     </div>
     <button type="submit">Save job</button>
+  </form>
+</section>
+
+<section id="apply">
+  <h2>Apply Tracking</h2>
+  <p>Fill this in once you've applied on the employer/platform's own site yourself &mdash;
+  submitting marks this job's status as <code>applied</code>. See
+  <code>docs/application-workflow.md</code>.</p>
+  <form method="post" action="/jobs/{{ job.id }}/apply">
+    <div class="field">
+      <label for="application_date">Application date</label>
+      <input type="date" id="application_date" name="application_date" value="{{ application.application_date if application else '' }}">
+    </div>
+    <div class="field">
+      <label for="application_url">Application URL</label>
+      <input type="url" id="application_url" name="application_url" value="{{ application.application_url if application else '' }}">
+    </div>
+    <div class="field">
+      <label for="contact_person">Contact person</label>
+      <input type="text" id="contact_person" name="contact_person" value="{{ application.contact_person if application else '' }}">
+    </div>
+    <div class="field">
+      <label for="outcome">Outcome</label>
+      <select id="outcome" name="outcome">
+        {% for choice in outcome_choices %}
+        <option value="{{ choice }}" {% if application and application.outcome == choice %}selected{% endif %}>{{ choice }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="field">
+      <label for="apply_follow_up_date">Follow-up date (post-application)</label>
+      <input type="date" id="apply_follow_up_date" name="follow_up_date" value="{{ application.follow_up_date if application else '' }}">
+    </div>
+    <div class="field">
+      <label for="apply_notes">Notes</label>
+      <textarea id="apply_notes" name="notes" rows="4">{{ application.notes if application else '' }}</textarea>
+    </div>
+    <button type="submit">Save application</button>
   </form>
 </section>
 

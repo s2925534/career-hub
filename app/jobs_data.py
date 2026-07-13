@@ -46,6 +46,13 @@ def get_job(job_id: int) -> sqlite3.Row | None:
         return conn.execute("SELECT * FROM jobs WHERE id = ?", (job_id,)).fetchone()
 
 
+def list_jobs_by_status(status: str) -> list[sqlite3.Row]:
+    with get_connection() as conn:
+        return conn.execute(
+            "SELECT * FROM jobs WHERE status = ? ORDER BY created_at DESC", (status,)
+        ).fetchall()
+
+
 def create_job(fields: dict[str, Any]) -> int:
     columns = [f for f in JOB_FIELDS if f in fields]
     placeholders = ", ".join(f":{c}" for c in columns)

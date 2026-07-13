@@ -14,7 +14,7 @@ from fastapi import APIRouter, Form, HTTPException, Request, UploadFile
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 
-from app import jobs_data, matching, profile_data, storage
+from app import application_prep, applications_data, jobs_data, matching, profile_data, storage
 from app.site_context import is_private_allowed
 
 router = APIRouter()
@@ -252,6 +252,8 @@ def job_detail(request: Request, job_id: int, saved: str | None = None):
     job = jobs_data.get_job(job_id)
     if job is None:
         raise HTTPException(status_code=404)
+    profile = profile_data.get_candidate_profile()
+    documents = profile_data.list_documents()
     match = matching.score_job(job, profile_data.get_preferences(), profile_data.list_skills())
     return templates.TemplateResponse(
         request,
@@ -261,6 +263,10 @@ def job_detail(request: Request, job_id: int, saved: str | None = None):
             "job": job,
             "match": match,
             "status_choices": jobs_data.STATUS_CHOICES,
+            "checklist": application_prep.build_application_checklist(job, profile, documents, match),
+            "cover_letter_draft": application_prep.build_cover_letter_draft(job, profile, match),
+            "application": applications_data.get_application_by_job(job_id),
+            "outcome_choices": applications_data.OUTCOME_CHOICES,
             "saved": saved,
         },
     )
@@ -300,11 +306,51 @@ def job_update(
     return RedirectResponse(url=f"/jobs/{job_id}?saved=1", status_code=303)
 
 
+@router.post("/jobs/{job_id}/apply")
+def job_apply(
+    request: Request,
+    job_id: int,
+    application_date: str = Form(""),
+    application_url: str = Form(""),
+    contact_person: str = Form(""),
+    outcome: str = Form("pending"),
+    notes: str = Form(""),
+    follow_up_date: str = Form(""),
+):
+    _guard(request)
+    if jobs_data.get_job(job_id) is None:
+        raise HTTPException(status_code=404)
+    if outcome not in applications_data.OUTCOME_CHOICES:
+        outcome = "pending"
+    applications_data.upsert_application(
+        job_id,
+        {
+            "application_date": application_date.strip() or None,
+            "application_url": application_url.strip(),
+            "contact_person": contact_person.strip(),
+            "outcome": outcome,
+            "notes": notes.strip(),
+            "follow_up_date": follow_up_date.strip() or None,
+        },
+    )
+    jobs_data.update_job(job_id, {"status": "applied"})
+    return RedirectResponse(url=f"/jobs/{job_id}?saved=1#apply", status_code=303)
+
+
 @router.get("/applications", response_class=HTMLResponse)
 def applications(request: Request):
     _guard(request)
+    profile = profile_data.get_candidate_profile()
+    preferences = profile_data.get_preferences()
     return templates.TemplateResponse(
-        request, "private/applications.html", {"page_title": "Applications"}
+        request,
+        "private/applications.html",
+        {
+            "page_title": "Applications",
+            "ready_to_apply": jobs_data.list_jobs_by_status("ready_to_apply"),
+            "applied": applications_data.list_applications_with_jobs(),
+            "screening_answers": application_prep.build_screening_answers(profile, preferences),
+        },
     )
 
 

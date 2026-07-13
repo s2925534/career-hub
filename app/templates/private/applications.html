@@ -1,5 +1,74 @@
 {% extends "private/_base.html" %}
 {% block content %}
-<p>Placeholder for application tracking (Phase 5). See
+<p>Ready-to-apply queue, reusable screening answers, and manual apply tracking. See
 <code>docs/application-workflow.md</code>.</p>
+
+<section id="queue">
+  <h2>Ready-to-Apply Queue</h2>
+  {% if ready_to_apply %}
+  <table>
+    <thead><tr><th>Title</th><th>Company</th><th>Follow-up</th><th></th></tr></thead>
+    <tbody>
+      {% for job in ready_to_apply %}
+      <tr>
+        <td>{{ job.title or '(untitled)' }}</td>
+        <td>{{ job.company }}</td>
+        <td>{{ job.follow_up_date or '' }}</td>
+        <td><a href="/jobs/{{ job.id }}">Review &amp; apply</a></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p>No jobs marked ready to apply yet. Set a job's status to <code>ready_to_apply</code> on its
+  detail page once you've reviewed the match and prepared your materials.</p>
+  {% endif %}
+</section>
+
+<section id="applied">
+  <h2>Applied</h2>
+  {% if applied %}
+  <table>
+    <thead><tr><th>Title</th><th>Company</th><th>Applied</th><th>Outcome</th><th>Follow-up</th><th></th></tr></thead>
+    <tbody>
+      {% for app in applied %}
+      <tr>
+        <td>{{ app.job_title or '(untitled)' }}</td>
+        <td>{{ app.job_company }}</td>
+        <td>{{ app.application_date or '' }}</td>
+        <td><span class="badge">{{ app.outcome }}</span></td>
+        <td>{{ app.follow_up_date or '' }}</td>
+        <td><a href="/jobs/{{ app.job_id }}">View</a></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p>No applications tracked yet. Record one from a job's detail page (the "Apply Tracking"
+  section) once you've applied on the employer/platform's own site.</p>
+  {% endif %}
+</section>
+
+<section id="screening-answers">
+  <h2>Screening Answers (reusable)</h2>
+  <p>Sourced only from stored, truthful profile data &mdash; see
+  <code>docs/profile-and-preferences.md</code> ("Profile Truthfulness Rules"). If a question can't
+  be answered from what's stored, it's flagged for manual completion rather than guessed.</p>
+  <table>
+    <thead><tr><th>Question</th><th>Answer</th><th>Source</th></tr></thead>
+    <tbody>
+      {% for qa in screening_answers %}
+      <tr>
+        <td>{{ qa.question }}</td>
+        <td>
+          {% if qa.answer %}{{ qa.answer }}
+          {% else %}<span class="badge badge-poor">not set &mdash; add in /profile or /preferences</span>
+          {% endif %}
+        </td>
+        <td><code>{{ qa.source }}</code></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</section>
 {% endblock %}
