@@ -105,14 +105,14 @@ committed, and pushed.
 
 ## Phase 7: Resume Generation and Versioning
 
-- [ ] Generate resume from structured profile.
-- [ ] Store resume versions.
-- [ ] Mark one version as public.
-- [ ] Mark one version as job-application default.
-- [ ] Track changes when a new job is added.
-- [ ] Require approval before publishing.
-- [ ] Add rollback support.
-- [ ] Commit and push.
+- [x] Generate resume from structured profile.
+- [x] Store resume versions.
+- [x] Mark one version as public.
+- [x] Mark one version as job-application default.
+- [x] Track changes when a new job is added.
+- [x] Require approval before publishing.
+- [x] Add rollback support.
+- [x] Commit and push.
 
 ## Phase 8: Email/Job Alert Ingestion
 

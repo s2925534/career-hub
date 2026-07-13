@@ -21,6 +21,7 @@ from app import (
     matching,
     profile_data,
     public_profile_data,
+    resume_data,
     storage,
 )
 from app.site_context import is_private_allowed
@@ -363,11 +364,59 @@ def applications(request: Request):
 
 
 @router.get("/resume/versions", response_class=HTMLResponse)
-def resume_versions(request: Request):
+def resume_versions(request: Request, saved: str | None = None):
     _guard(request)
     return templates.TemplateResponse(
-        request, "private/resume_versions.html", {"page_title": "Resume Versions"}
+        request,
+        "private/resume_versions.html",
+        {
+            "page_title": "Resume Versions",
+            "resume_versions": resume_data.list_resume_versions(),
+            "public_cv_versions": resume_data.list_public_cv_versions(),
+            "saved": saved,
+        },
     )
+
+
+@router.post("/resume/versions/generate")
+def resume_version_generate(request: Request, label: str = Form("")):
+    _guard(request)
+    resume_data.create_resume_version(label.strip() or "Manual draft")
+    return RedirectResponse(url="/resume/versions?saved=1#resume", status_code=303)
+
+
+@router.post("/resume/versions/{version_id}/set-default")
+def resume_version_set_default(request: Request, version_id: int):
+    _guard(request)
+    if resume_data.get_resume_version(version_id) is None:
+        raise HTTPException(status_code=404)
+    resume_data.set_application_default(version_id)
+    return RedirectResponse(url="/resume/versions?saved=1#resume", status_code=303)
+
+
+@router.post("/resume/versions/{version_id}/archive")
+def resume_version_archive(request: Request, version_id: int):
+    _guard(request)
+    if resume_data.get_resume_version(version_id) is None:
+        raise HTTPException(status_code=404)
+    resume_data.archive_resume_version(version_id)
+    return RedirectResponse(url="/resume/versions#resume", status_code=303)
+
+
+@router.post("/resume/versions/public/generate")
+def public_cv_version_generate(request: Request, label: str = Form("")):
+    _guard(request)
+    resume_data.create_public_cv_version(label.strip() or "Manual draft")
+    return RedirectResponse(url="/resume/versions?saved=1#public-cv", status_code=303)
+
+
+@router.post("/resume/versions/public/{version_id}/publish")
+def public_cv_version_publish(request: Request, version_id: int):
+    _guard(request)
+    if resume_data.get_public_cv_version(version_id) is None:
+        raise HTTPException(status_code=404)
+    resume_data.publish_public_cv_version(version_id)
+    return RedirectResponse(url="/resume/versions?saved=1#public-cv", status_code=303)
 
 
 @router.get("/public-cv/admin", response_class=HTMLResponse)
@@ -444,6 +493,13 @@ def public_cv_experience_add(
             "visibility": visibility,
         }
     )
+    # A new job/role changes the structured profile -- generate a draft resume
+    # (and, if public-visible, a draft public CV) reflecting it. Both stay
+    # drafts until explicitly published. See docs/resume-versioning.md.
+    label = f"Auto: added {title.strip() or 'work experience'}"
+    resume_data.create_resume_version(label, source="auto_new_job")
+    if visibility in public_profile_data.PUBLIC_VISIBILITIES:
+        resume_data.create_public_cv_version(label, source="auto_new_job")
     return RedirectResponse(url="/public-cv/admin?saved=1#experience", status_code=303)
 
 

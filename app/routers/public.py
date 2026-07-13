@@ -1,22 +1,24 @@
-"""Public CV site routes -- Phase 6. See docs/public-cv-site.md,
-docs/seo-strategy.md, and docs/profile-and-preferences.md ("Public Profile
-Fields").
+"""Public CV site routes -- Phase 6/7. See docs/public-cv-site.md,
+docs/seo-strategy.md, docs/resume-versioning.md, and ADR-010 in
+docs/decision-log.md.
 
-Renders only public_profile plus WorkExperience/Project/Skill rows whose
-visibility includes public_cv -- see app/public_profile_data.py
-PUBLIC_VISIBILITIES. Never renders anything from the private candidate
-profile, jobs, applications, or matching data. No auth (see docs/security.md)
--- this site is meant to be freely crawlable.
+As of Phase 7, every page here renders the currently *live* PublicCvPageVersion
+snapshot (app/resume_data.py) -- never live profile edits directly. Publishing
+a new snapshot from /resume/versions is the only way a change reaches this
+site; until something is published, these pages show an "unpublished" empty
+state. No auth (see docs/security.md) -- this site is meant to be freely
+crawlable.
 """
 from __future__ import annotations
 
 import json
+from typing import Any
 
 from fastapi import APIRouter, HTTPException, Request
 from fastapi.responses import HTMLResponse, PlainTextResponse, Response
 from fastapi.templating import Jinja2Templates
 
-from app import public_profile_data
+from app import resume_data
 from app.config import settings
 from app.seo import build_seo
 from app.site_context import is_public_allowed
@@ -30,30 +32,36 @@ def _guard(request: Request) -> None:
         raise HTTPException(status_code=404)
 
 
-def _display_name(profile) -> str:
-    return profile["public_name"] or "Public CV"
+def _live_snapshot() -> dict[str, Any]:
+    version = resume_data.get_live_public_cv_version()
+    return json.loads(version["data"]) if version else {}
 
 
 @router.get("/", response_class=HTMLResponse)
 def public_home(request: Request):
     _guard(request)
-    profile = public_profile_data.get_public_profile()
-    name = _display_name(profile)
-    title = f"{name} — {profile['headline']}" if profile["headline"] else name
+    snapshot = _live_snapshot()
+    name = snapshot.get("public_name") or "Public CV"
+    headline = snapshot.get("headline") or ""
+    title = f"{name} — {headline}" if headline else name
     seo = build_seo(
-        "/", title, profile["summary"] or "Public professional profile.", og_type="profile"
+        "/", title, snapshot.get("summary") or "Public professional profile.", og_type="profile"
     )
     schema = {
         "@context": "https://schema.org",
         "@type": "ProfilePage",
         "mainEntity": {
             "@type": "Person",
-            "name": profile["public_name"] or None,
-            "jobTitle": profile["headline"] or None,
+            "name": snapshot.get("public_name") or None,
+            "jobTitle": headline or None,
             "url": seo["canonical"],
             "sameAs": [
                 link
-                for link in (profile["github_link"], profile["linkedin_link"], profile["portfolio_links"])
+                for link in (
+                    snapshot.get("github_link"),
+                    snapshot.get("linkedin_link"),
+                    snapshot.get("portfolio_links"),
+                )
                 if link
             ],
         },
@@ -65,8 +73,8 @@ def public_home(request: Request):
             "page_title": name,
             "seo": seo,
             "schema_json": json.dumps(schema),
-            "profile": profile,
-            "skills": public_profile_data.list_public_skills(),
+            "profile": snapshot,
+            "skills": snapshot.get("skills", []),
         },
     )
 
@@ -74,53 +82,52 @@ def public_home(request: Request):
 @router.get("/experience", response_class=HTMLResponse)
 def public_experience(request: Request):
     _guard(request)
-    name = _display_name(public_profile_data.get_public_profile())
+    snapshot = _live_snapshot()
+    name = snapshot.get("public_name") or "Public CV"
     seo = build_seo("/experience", f"Experience — {name}", f"{name}'s work history.")
     return templates.TemplateResponse(
         request,
         "public/experience.html",
-        {
-            "page_title": "Experience",
-            "seo": seo,
-            "experiences": public_profile_data.list_public_work_experiences(),
-        },
+        {"page_title": "Experience", "seo": seo, "experiences": snapshot.get("work_experiences", [])},
     )
 
 
 @router.get("/skills", response_class=HTMLResponse)
 def public_skills(request: Request):
     _guard(request)
-    name = _display_name(public_profile_data.get_public_profile())
+    snapshot = _live_snapshot()
+    name = snapshot.get("public_name") or "Public CV"
     seo = build_seo("/skills", f"Skills — {name}", f"{name}'s skills.")
     return templates.TemplateResponse(
         request,
         "public/skills.html",
-        {"page_title": "Skills", "seo": seo, "skills": public_profile_data.list_public_skills()},
+        {"page_title": "Skills", "seo": seo, "skills": snapshot.get("skills", [])},
     )
 
 
 @router.get("/projects", response_class=HTMLResponse)
 def public_projects(request: Request):
     _guard(request)
-    name = _display_name(public_profile_data.get_public_profile())
+    snapshot = _live_snapshot()
+    name = snapshot.get("public_name") or "Public CV"
     seo = build_seo("/projects", f"Projects — {name}", f"Selected projects by {name}.")
     return templates.TemplateResponse(
         request,
         "public/projects.html",
-        {"page_title": "Projects", "seo": seo, "projects": public_profile_data.list_public_projects()},
+        {"page_title": "Projects", "seo": seo, "projects": snapshot.get("projects", [])},
     )
 
 
 @router.get("/contact", response_class=HTMLResponse)
 def public_contact(request: Request):
     _guard(request)
-    profile = public_profile_data.get_public_profile()
-    name = _display_name(profile)
+    snapshot = _live_snapshot()
+    name = snapshot.get("public_name") or "Public CV"
     seo = build_seo("/contact", f"Contact — {name}", f"How to contact {name}.")
     return templates.TemplateResponse(
         request,
         "public/contact.html",
-        {"page_title": "Contact", "seo": seo, "profile": profile},
+        {"page_title": "Contact", "seo": seo, "profile": snapshot},
     )
 
 

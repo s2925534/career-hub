@@ -1,17 +1,19 @@
 -- Career Hub schema.
 --
--- career_profile, resume_versions, public_cv_versions, contact_messages,
--- seo_metadata (used read-only for optional per-page overrides, no admin UI
--- yet), and audit_log are still intentionally minimal placeholder tables (id,
--- timestamps, and a flexible JSON `data` column where applicable) -- they
--- belong to later phases (7) and haven't been designed yet. See
--- docs/phase-plan.md.
+-- career_profile, contact_messages, seo_metadata (used read-only for
+-- optional per-page overrides, no admin UI yet), and audit_log are still
+-- intentionally minimal placeholder tables (id, timestamps, and a flexible
+-- JSON `data` column where applicable) -- they haven't been designed yet.
+-- See docs/phase-plan.md.
 --
 -- candidate_profile, preferences, and skills were promoted to fully modeled
 -- columns in Phase 2, per docs/profile-and-preferences.md. jobs was promoted
 -- in Phase 3, applications in Phase 5 (both per docs/application-workflow.md),
--- and public_profile/work_experiences/projects in Phase 6, per
--- docs/public-cv-site.md.
+-- public_profile/work_experiences/projects in Phase 6 (per
+-- docs/public-cv-site.md), and resume_versions/public_cv_versions in Phase 7,
+-- per docs/resume-versioning.md. Both still keep a JSON `data` snapshot
+-- column deliberately -- a version is inherently a point-in-time capture of
+-- many profile fields, not a simple structured row.
 --
 -- NOTE: this project has no migration tooling yet (pre-1.0, no real user data).
 -- If you have a local SQLite file from before Phase 2, delete it and let
@@ -121,17 +123,31 @@ CREATE TABLE IF NOT EXISTS projects (
     updated_at TEXT NOT NULL DEFAULT (datetime('now'))
 );
 
+-- ResumeVersion: a snapshot of structured profile data (see
+-- app/resume_data.py build_resume_snapshot()), used for job-application prep.
+-- Only one row should have is_application_default = 1 at a time (enforced in
+-- app/resume_data.py, not the schema). source: manual | auto_new_job.
 CREATE TABLE IF NOT EXISTS resume_versions (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    version_type TEXT NOT NULL DEFAULT 'draft',
+    label TEXT NOT NULL DEFAULT '',
+    source TEXT NOT NULL DEFAULT 'manual',
+    is_application_default INTEGER NOT NULL DEFAULT 0,
+    archived INTEGER NOT NULL DEFAULT 0,
     data TEXT NOT NULL DEFAULT '{}',
-    is_live INTEGER NOT NULL DEFAULT 0,
     created_at TEXT NOT NULL DEFAULT (datetime('now')),
     updated_at TEXT NOT NULL DEFAULT (datetime('now'))
 );
 
+-- PublicCvPageVersion: a snapshot of exactly what the public CV site renders
+-- (see app/resume_data.py build_public_cv_snapshot()). The public site
+-- (app/routers/public.py) only ever reads the currently live row here, never
+-- live profile edits directly -- see ADR-010 in docs/decision-log.md.
+-- Publishing an older version again is how rollback works; nothing is ever
+-- deleted. Only one row should have is_live = 1 at a time.
 CREATE TABLE IF NOT EXISTS public_cv_versions (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
+    label TEXT NOT NULL DEFAULT '',
+    source TEXT NOT NULL DEFAULT 'manual',
     data TEXT NOT NULL DEFAULT '{}',
     is_live INTEGER NOT NULL DEFAULT 0,
     published_at TEXT,

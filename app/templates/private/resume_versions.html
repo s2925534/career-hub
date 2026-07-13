@@ -1,5 +1,99 @@
 {% extends "private/_base.html" %}
 {% block content %}
-<p>Placeholder for resume/CV version management (Phase 7). See
-<code>docs/resume-versioning.md</code>.</p>
+<p>Resumes/CVs are versioned snapshots of your structured profile data, not one-off uploads. See
+<code>docs/resume-versioning.md</code>. A new resume draft &mdash; and, if the role is
+public-visible, a new public CV draft &mdash; is generated automatically whenever you add a work
+experience on <a href="/public-cv/admin#experience">Public CV Admin</a>.</p>
+
+{% if saved %}
+<p class="flash">Saved.</p>
+{% endif %}
+
+<section id="resume">
+  <h2>Resume Versions</h2>
+  <p>One version may be flagged the job-application default. These are never published publicly
+  &mdash; see the Public CV Versions section below for that.</p>
+  {% if resume_versions %}
+  <table>
+    <thead><tr><th>Label</th><th>Source</th><th>Status</th><th>Created</th><th></th></tr></thead>
+    <tbody>
+      {% for v in resume_versions %}
+      <tr>
+        <td>{{ v.label or ('#' ~ v.id) }}</td>
+        <td>{{ v.source }}</td>
+        <td>
+          {% if v.is_application_default %}<span class="badge badge-strong">application default</span>{% endif %}
+          {% if v.archived %}<span class="badge badge-excluded">archived</span>{% endif %}
+        </td>
+        <td>{{ v.created_at }}</td>
+        <td>
+          {% if not v.is_application_default %}
+          <form method="post" action="/resume/versions/{{ v.id }}/set-default" style="display:inline">
+            <button type="submit">Set as application default</button>
+          </form>
+          {% endif %}
+          {% if not v.archived %}
+          <form method="post" action="/resume/versions/{{ v.id }}/archive" style="display:inline">
+            <button type="submit">Archive</button>
+          </form>
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p>No resume versions generated yet.</p>
+  {% endif %}
+
+  <form method="post" action="/resume/versions/generate">
+    <div class="field">
+      <label for="resume_label">Label</label>
+      <input type="text" id="resume_label" name="label" placeholder="e.g. v1, 2026-07 update">
+    </div>
+    <button type="submit">Generate new draft</button>
+  </form>
+</section>
+
+<section id="public-cv">
+  <h2>Public CV Versions</h2>
+  <p>Publishing is explicit and reviewed &mdash; the public CV site only ever renders the
+  version marked <strong>live</strong> below, never live profile edits (see
+  <a href="/public-cv/admin">Public CV Admin</a> and ADR-010 in <code>docs/decision-log.md</code>).
+  Publishing an older draft again is how you roll back &mdash; nothing is ever deleted.</p>
+  {% if public_cv_versions %}
+  <table>
+    <thead><tr><th>Label</th><th>Source</th><th>Status</th><th>Published</th><th>Created</th><th></th></tr></thead>
+    <tbody>
+      {% for v in public_cv_versions %}
+      <tr>
+        <td>{{ v.label or ('#' ~ v.id) }}</td>
+        <td>{{ v.source }}</td>
+        <td>{% if v.is_live %}<span class="badge badge-strong">live</span>{% endif %}</td>
+        <td>{{ v.published_at or '' }}</td>
+        <td>{{ v.created_at }}</td>
+        <td>
+          {% if not v.is_live %}
+          <form method="post" action="/resume/versions/public/{{ v.id }}/publish" style="display:inline">
+            <button type="submit">Publish (make live)</button>
+          </form>
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p>No public CV versions generated yet &mdash; the public CV site will show an "unpublished"
+  empty state until you generate and publish one.</p>
+  {% endif %}
+
+  <form method="post" action="/resume/versions/public/generate">
+    <div class="field">
+      <label for="public_cv_label">Label</label>
+      <input type="text" id="public_cv_label" name="label" placeholder="e.g. v1, 2026-07 update">
+    </div>
+    <button type="submit">Generate new draft</button>
+  </form>
+</section>
 {% endblock %}
