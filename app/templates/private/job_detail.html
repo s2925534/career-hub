@@ -6,6 +6,24 @@
 <p class="flash">Saved.</p>
 {% endif %}
 
+<section id="match">
+  <h2>Match</h2>
+  <p>
+    <span class="badge badge-{{ match.band }}">
+      {% if match.score is not none %}{{ match.score }} &middot; {% endif %}{{ match.band }}
+    </span>
+  </p>
+  {% if match.match_reasons %}
+  <p><strong>Why it matches:</strong></p>
+  <ul>{% for reason in match.match_reasons %}<li>{{ reason }}</li>{% endfor %}</ul>
+  {% endif %}
+  {% if match.rejection_reasons %}
+  <p><strong>Why it might not:</strong></p>
+  <ul>{% for reason in match.rejection_reasons %}<li>{{ reason }}</li>{% endfor %}</ul>
+  {% endif %}
+  <p>Rule-based only, no AI &mdash; see <code>docs/phase-plan.md</code> (Phase 4).</p>
+</section>
+
 <section>
   <form method="post" action="/jobs/{{ job.id }}">
     <div class="field">

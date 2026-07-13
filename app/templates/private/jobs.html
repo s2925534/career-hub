@@ -6,15 +6,22 @@
 
 <section>
   <h2>Tracked Jobs</h2>
-  {% if jobs %}
+  {% if jobs_with_matches %}
   <table>
-    <thead><tr><th>Title</th><th>Company</th><th>Status</th><th>Follow-up</th><th></th></tr></thead>
+    <thead><tr><th>Title</th><th>Company</th><th>Status</th><th>Match</th><th>Follow-up</th><th></th></tr></thead>
     <tbody>
-      {% for job in jobs %}
+      {% for entry in jobs_with_matches %}
+      {% set job = entry.job %}
+      {% set match = entry.match %}
       <tr>
         <td>{{ job.title or '(untitled)' }}</td>
         <td>{{ job.company }}</td>
         <td><span class="badge">{{ job.status }}</span></td>
+        <td>
+          <span class="badge badge-{{ match.band }}">
+            {% if match.score is not none %}{{ match.score }} &middot; {% endif %}{{ match.band }}
+          </span>
+        </td>
         <td>{{ job.follow_up_date or '' }}</td>
         <td><a href="/jobs/{{ job.id }}">View</a></td>
       </tr>

@@ -14,7 +14,7 @@ from fastapi import APIRouter, Form, HTTPException, Request, UploadFile
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 
-from app import jobs_data, profile_data, storage
+from app import jobs_data, matching, profile_data, storage
 from app.site_context import is_private_allowed
 
 router = APIRouter()
@@ -203,12 +203,18 @@ def preferences_save(
 @router.get("/jobs", response_class=HTMLResponse)
 def jobs(request: Request):
     _guard(request)
+    preferences = profile_data.get_preferences()
+    skills = profile_data.list_skills()
+    job_rows = jobs_data.list_jobs()
+    jobs_with_matches = [
+        {"job": job, "match": matching.score_job(job, preferences, skills)} for job in job_rows
+    ]
     return templates.TemplateResponse(
         request,
         "private/jobs.html",
         {
             "page_title": "Jobs",
-            "jobs": jobs_data.list_jobs(),
+            "jobs_with_matches": jobs_with_matches,
             "source_choices": jobs_data.SOURCE_CHOICES,
         },
     )
@@ -246,12 +252,14 @@ def job_detail(request: Request, job_id: int, saved: str | None = None):
     job = jobs_data.get_job(job_id)
     if job is None:
         raise HTTPException(status_code=404)
+    match = matching.score_job(job, profile_data.get_preferences(), profile_data.list_skills())
     return templates.TemplateResponse(
         request,
         "private/job_detail.html",
         {
             "page_title": job["title"] or "Job",
             "job": job,
+            "match": match,
             "status_choices": jobs_data.STATUS_CHOICES,
             "saved": saved,
         },

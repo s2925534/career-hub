@@ -71,12 +71,12 @@ committed, and pushed.
 
 ## Phase 4: Job Matching and Ranking
 
-- [ ] Rule-based matching first.
-- [ ] Score by title, skills, location, salary, remote, company, and exclusions.
-- [ ] Show reason for match.
-- [ ] Show reason for rejection.
-- [ ] Do not use AI yet unless explicitly enabled later.
-- [ ] Commit and push.
+- [x] Rule-based matching first.
+- [x] Score by title, skills, location, salary, remote, company, and exclusions.
+- [x] Show reason for match.
+- [x] Show reason for rejection.
+- [x] Do not use AI yet unless explicitly enabled later.
+- [x] Commit and push.
 
 ## Phase 5: Application Preparation
 
