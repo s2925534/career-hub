@@ -1,7 +1,22 @@
 {% extends "public/_base.html" %}
+{% block schema %}
+<script type="application/ld+json">{{ schema_json | safe }}</script>
+{% endblock %}
 {% block content %}
-<p>This is the public CV site placeholder home page.</p>
-<p>Once profile data exists (Phase 2) and a public CV version is published
-(Phase 6&ndash;7), this page will render the candidate's public headline,
-summary, and links. See <code>docs/public-cv-site.md</code>.</p>
+{% if profile.public_name %}
+{% if profile.headline %}<p class="headline">{{ profile.headline }}</p>{% endif %}
+{% if profile.summary %}<p>{{ profile.summary }}</p>{% endif %}
+{% if profile.region %}<p>{{ profile.region }}</p>{% endif %}
+<p>
+  {% if profile.github_link %}<a href="{{ profile.github_link }}">GitHub</a>{% endif %}
+  {% if profile.linkedin_link %}<a href="{{ profile.linkedin_link }}">LinkedIn</a>{% endif %}
+  {% if profile.portfolio_links %}<a href="{{ profile.portfolio_links }}">Portfolio</a>{% endif %}
+</p>
+{% if skills %}
+<h2>Skills</h2>
+<p>{% for skill in skills %}{{ skill.name }}{% if not loop.last %}, {% endif %}{% endfor %}</p>
+{% endif %}
+{% else %}
+<p>This public profile hasn't been filled in yet.</p>
+{% endif %}
 {% endblock %}

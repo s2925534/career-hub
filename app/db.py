@@ -25,6 +25,7 @@ def init_db() -> None:
         # have a row to load/update -- see docs/profile-and-preferences.md.
         conn.execute("INSERT OR IGNORE INTO candidate_profile (id) VALUES (1)")
         conn.execute("INSERT OR IGNORE INTO preferences (id) VALUES (1)")
+        conn.execute("INSERT OR IGNORE INTO public_profile (id) VALUES (1)")
         conn.commit()
 
 

@@ -1,14 +1,17 @@
 -- Career Hub schema.
 --
--- career_profile, public_profile, work_experiences, projects, resume_versions,
--- public_cv_versions, contact_messages, seo_metadata, and audit_log are still
--- intentionally minimal placeholder tables (id, timestamps, and a flexible
--- JSON `data` column) -- they belong to later phases (6, 7) and haven't been
--- designed yet. See docs/phase-plan.md.
+-- career_profile, resume_versions, public_cv_versions, contact_messages,
+-- seo_metadata (used read-only for optional per-page overrides, no admin UI
+-- yet), and audit_log are still intentionally minimal placeholder tables (id,
+-- timestamps, and a flexible JSON `data` column where applicable) -- they
+-- belong to later phases (7) and haven't been designed yet. See
+-- docs/phase-plan.md.
 --
 -- candidate_profile, preferences, and skills were promoted to fully modeled
 -- columns in Phase 2, per docs/profile-and-preferences.md. jobs was promoted
--- in Phase 3, and applications in Phase 5, both per docs/application-workflow.md.
+-- in Phase 3, applications in Phase 5 (both per docs/application-workflow.md),
+-- and public_profile/work_experiences/projects in Phase 6, per
+-- docs/public-cv-site.md.
 --
 -- NOTE: this project has no migration tooling yet (pre-1.0, no real user data).
 -- If you have a local SQLite file from before Phase 2, delete it and let
@@ -39,9 +42,20 @@ CREATE TABLE IF NOT EXISTS candidate_profile (
     updated_at TEXT NOT NULL DEFAULT (datetime('now'))
 );
 
+-- Singleton (id=1, seeded by init_db()), like candidate_profile/preferences --
+-- deliberately a separate table from candidate_profile so private-only fields
+-- (work rights, visa details, target salary, ...) can never leak onto the
+-- public CV site by accident. See docs/public-cv-site.md.
 CREATE TABLE IF NOT EXISTS public_profile (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    data TEXT NOT NULL DEFAULT '{}',
+    id INTEGER PRIMARY KEY CHECK (id = 1),
+    public_name TEXT NOT NULL DEFAULT '',
+    headline TEXT NOT NULL DEFAULT '',
+    summary TEXT NOT NULL DEFAULT '',
+    region TEXT NOT NULL DEFAULT '',
+    contact_method TEXT NOT NULL DEFAULT '',
+    github_link TEXT NOT NULL DEFAULT '',
+    linkedin_link TEXT NOT NULL DEFAULT '',
+    portfolio_links TEXT NOT NULL DEFAULT '',
     created_at TEXT NOT NULL DEFAULT (datetime('now')),
     updated_at TEXT NOT NULL DEFAULT (datetime('now'))
 );
@@ -68,9 +82,18 @@ CREATE TABLE IF NOT EXISTS preferences (
     updated_at TEXT NOT NULL DEFAULT (datetime('now'))
 );
 
+-- visibility: private | public_cv | applications_only | both | archived --
+-- see docs/profile-and-preferences.md ("Public/Private Visibility Rules").
 CREATE TABLE IF NOT EXISTS work_experiences (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    data TEXT NOT NULL DEFAULT '{}',
+    company TEXT NOT NULL DEFAULT '',
+    title TEXT NOT NULL DEFAULT '',
+    location TEXT NOT NULL DEFAULT '',
+    employment_type TEXT NOT NULL DEFAULT '',
+    start_date TEXT NOT NULL DEFAULT '',
+    end_date TEXT NOT NULL DEFAULT '',
+    summary TEXT NOT NULL DEFAULT '',
+    technologies TEXT NOT NULL DEFAULT '',
     visibility TEXT NOT NULL DEFAULT 'private',
     created_at TEXT NOT NULL DEFAULT (datetime('now')),
     updated_at TEXT NOT NULL DEFAULT (datetime('now'))
@@ -89,7 +112,10 @@ CREATE TABLE IF NOT EXISTS skills (
 
 CREATE TABLE IF NOT EXISTS projects (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    data TEXT NOT NULL DEFAULT '{}',
+    name TEXT NOT NULL DEFAULT '',
+    description TEXT NOT NULL DEFAULT '',
+    url TEXT NOT NULL DEFAULT '',
+    technologies TEXT NOT NULL DEFAULT '',
     visibility TEXT NOT NULL DEFAULT 'private',
     created_at TEXT NOT NULL DEFAULT (datetime('now')),
     updated_at TEXT NOT NULL DEFAULT (datetime('now'))

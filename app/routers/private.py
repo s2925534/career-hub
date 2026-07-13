@@ -14,7 +14,15 @@ from fastapi import APIRouter, Form, HTTPException, Request, UploadFile
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 
-from app import application_prep, applications_data, jobs_data, matching, profile_data, storage
+from app import (
+    application_prep,
+    applications_data,
+    jobs_data,
+    matching,
+    profile_data,
+    public_profile_data,
+    storage,
+)
 from app.site_context import is_private_allowed
 
 router = APIRouter()
@@ -363,8 +371,115 @@ def resume_versions(request: Request):
 
 
 @router.get("/public-cv/admin", response_class=HTMLResponse)
-def public_cv_admin(request: Request):
+def public_cv_admin(request: Request, saved: str | None = None):
     _guard(request)
     return templates.TemplateResponse(
-        request, "private/public_cv_admin.html", {"page_title": "Public CV Admin"}
+        request,
+        "private/public_cv_admin.html",
+        {
+            "page_title": "Public CV Admin",
+            "public_profile": public_profile_data.get_public_profile(),
+            "work_experiences": public_profile_data.list_work_experiences(),
+            "projects": public_profile_data.list_projects(),
+            "visibility_choices": profile_data.VISIBILITY_CHOICES,
+            "saved": saved,
+        },
     )
+
+
+@router.post("/public-cv/admin/profile")
+def public_cv_profile_save(
+    request: Request,
+    public_name: str = Form(""),
+    headline: str = Form(""),
+    summary: str = Form(""),
+    region: str = Form(""),
+    contact_method: str = Form(""),
+    github_link: str = Form(""),
+    linkedin_link: str = Form(""),
+    portfolio_links: str = Form(""),
+):
+    _guard(request)
+    public_profile_data.update_public_profile(
+        {
+            "public_name": public_name.strip(),
+            "headline": headline.strip(),
+            "summary": summary.strip(),
+            "region": region.strip(),
+            "contact_method": contact_method.strip(),
+            "github_link": github_link.strip(),
+            "linkedin_link": linkedin_link.strip(),
+            "portfolio_links": portfolio_links.strip(),
+        }
+    )
+    return RedirectResponse(url="/public-cv/admin?saved=1#profile", status_code=303)
+
+
+@router.post("/public-cv/admin/experience")
+def public_cv_experience_add(
+    request: Request,
+    company: str = Form(""),
+    title: str = Form(""),
+    location: str = Form(""),
+    employment_type: str = Form(""),
+    start_date: str = Form(""),
+    end_date: str = Form(""),
+    summary: str = Form(""),
+    technologies: str = Form(""),
+    visibility: str = Form("private"),
+):
+    _guard(request)
+    if visibility not in profile_data.VISIBILITY_CHOICES:
+        visibility = "private"
+    public_profile_data.add_work_experience(
+        {
+            "company": company.strip(),
+            "title": title.strip(),
+            "location": location.strip(),
+            "employment_type": employment_type.strip(),
+            "start_date": start_date.strip(),
+            "end_date": end_date.strip(),
+            "summary": summary.strip(),
+            "technologies": technologies.strip(),
+            "visibility": visibility,
+        }
+    )
+    return RedirectResponse(url="/public-cv/admin?saved=1#experience", status_code=303)
+
+
+@router.post("/public-cv/admin/experience/{experience_id}/delete")
+def public_cv_experience_delete(request: Request, experience_id: int):
+    _guard(request)
+    public_profile_data.delete_work_experience(experience_id)
+    return RedirectResponse(url="/public-cv/admin#experience", status_code=303)
+
+
+@router.post("/public-cv/admin/projects")
+def public_cv_project_add(
+    request: Request,
+    name: str = Form(""),
+    description: str = Form(""),
+    url: str = Form(""),
+    technologies: str = Form(""),
+    visibility: str = Form("private"),
+):
+    _guard(request)
+    if visibility not in profile_data.VISIBILITY_CHOICES:
+        visibility = "private"
+    public_profile_data.add_project(
+        {
+            "name": name.strip(),
+            "description": description.strip(),
+            "url": url.strip(),
+            "technologies": technologies.strip(),
+            "visibility": visibility,
+        }
+    )
+    return RedirectResponse(url="/public-cv/admin?saved=1#projects", status_code=303)
+
+
+@router.post("/public-cv/admin/projects/{project_id}/delete")
+def public_cv_project_delete(request: Request, project_id: int):
+    _guard(request)
+    public_profile_data.delete_project(project_id)
+    return RedirectResponse(url="/public-cv/admin#projects", status_code=303)

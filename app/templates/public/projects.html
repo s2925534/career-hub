@@ -1,4 +1,14 @@
 {% extends "public/_base.html" %}
 {% block content %}
-<p>Placeholder for selected public projects. See <code>docs/public-cv-site.md</code>.</p>
+{% if projects %}
+{% for project in projects %}
+<article>
+  <h2>{% if project.url %}<a href="{{ project.url }}">{{ project.name }}</a>{% else %}{{ project.name }}{% endif %}</h2>
+  {% if project.description %}<p>{{ project.description }}</p>{% endif %}
+  {% if project.technologies %}<p><em>{{ project.technologies }}</em></p>{% endif %}
+</article>
+{% endfor %}
+{% else %}
+<p>No public projects listed yet.</p>
+{% endif %}
 {% endblock %}

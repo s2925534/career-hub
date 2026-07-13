@@ -1,4 +1,12 @@
 {% extends "public/_base.html" %}
 {% block content %}
-<p>Placeholder for public skills. See <code>docs/public-cv-site.md</code>.</p>
+{% if skills %}
+<ul>
+  {% for skill in skills %}
+  <li>{{ skill.name }}{% if skill.category %} <span class="badge">{{ skill.category }}</span>{% endif %}</li>
+  {% endfor %}
+</ul>
+{% else %}
+<p>No public skills listed yet.</p>
+{% endif %}
 {% endblock %}

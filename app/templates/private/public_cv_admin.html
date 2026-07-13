@@ -1,5 +1,175 @@
 {% extends "private/_base.html" %}
 {% block content %}
-<p>Placeholder for reviewing and publishing the public CV site (Phase 6&ndash;7). See
-<code>docs/public-cv-site.md</code>.</p>
+<p>Everything here feeds the public CV site once an item's visibility is set to
+<code>public_cv</code> or <code>both</code>. See <code>docs/public-cv-site.md</code>. There's no
+separate "publish" step for this MVP &mdash; saving an item with public visibility makes it live
+immediately; draft/review/rollback versioning is Phase 7 (<code>docs/resume-versioning.md</code>).</p>
+
+{% if saved %}
+<p class="flash">Saved.</p>
+{% endif %}
+
+<section id="profile">
+  <h2>Public Profile</h2>
+  <form method="post" action="/public-cv/admin/profile">
+    <div class="field">
+      <label for="public_name">Public display name</label>
+      <input type="text" id="public_name" name="public_name" value="{{ public_profile.public_name or '' }}">
+    </div>
+    <div class="field">
+      <label for="headline">Headline</label>
+      <input type="text" id="headline" name="headline" value="{{ public_profile.headline or '' }}"
+             placeholder="e.g. Senior Backend Engineer">
+    </div>
+    <div class="field">
+      <label for="summary">Professional summary</label>
+      <textarea id="summary" name="summary" rows="4">{{ public_profile.summary or '' }}</textarea>
+    </div>
+    <div class="field">
+      <label for="region">Public region</label>
+      <input type="text" id="region" name="region" value="{{ public_profile.region or '' }}"
+             placeholder="e.g. Sydney, Australia">
+    </div>
+    <div class="field">
+      <label for="contact_method">Contact instructions</label>
+      <input type="text" id="contact_method" name="contact_method" value="{{ public_profile.contact_method or '' }}"
+             placeholder="e.g. Email me at ...">
+    </div>
+    <div class="field">
+      <label for="github_link">GitHub link</label>
+      <input type="text" id="github_link" name="github_link" value="{{ public_profile.github_link or '' }}">
+    </div>
+    <div class="field">
+      <label for="linkedin_link">LinkedIn link</label>
+      <input type="text" id="linkedin_link" name="linkedin_link" value="{{ public_profile.linkedin_link or '' }}">
+    </div>
+    <div class="field">
+      <label for="portfolio_links">Portfolio link</label>
+      <input type="text" id="portfolio_links" name="portfolio_links" value="{{ public_profile.portfolio_links or '' }}">
+    </div>
+    <button type="submit">Save public profile</button>
+  </form>
+</section>
+
+<section id="experience">
+  <h2>Work Experience</h2>
+  {% if work_experiences %}
+  <table>
+    <thead><tr><th>Title</th><th>Company</th><th>Dates</th><th>Visibility</th><th></th></tr></thead>
+    <tbody>
+      {% for exp in work_experiences %}
+      <tr>
+        <td>{{ exp.title }}</td>
+        <td>{{ exp.company }}</td>
+        <td>{{ exp.start_date }}&ndash;{{ exp.end_date or 'Present' }}</td>
+        <td><span class="badge">{{ exp.visibility }}</span></td>
+        <td>
+          <form method="post" action="/public-cv/admin/experience/{{ exp.id }}/delete" style="display:inline">
+            <button type="submit">Remove</button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p>No work experience added yet.</p>
+  {% endif %}
+
+  <form method="post" action="/public-cv/admin/experience">
+    <div class="field">
+      <label for="exp_title">Title</label>
+      <input type="text" id="exp_title" name="title" required>
+    </div>
+    <div class="field">
+      <label for="exp_company">Company</label>
+      <input type="text" id="exp_company" name="company" required>
+    </div>
+    <div class="field">
+      <label for="exp_location">Location</label>
+      <input type="text" id="exp_location" name="location">
+    </div>
+    <div class="field">
+      <label for="exp_employment_type">Employment type</label>
+      <input type="text" id="exp_employment_type" name="employment_type" placeholder="e.g. Full-time">
+    </div>
+    <div class="field">
+      <label for="exp_start_date">Start date</label>
+      <input type="text" id="exp_start_date" name="start_date" placeholder="e.g. 2023-01">
+    </div>
+    <div class="field">
+      <label for="exp_end_date">End date</label>
+      <input type="text" id="exp_end_date" name="end_date" placeholder="leave blank if current">
+    </div>
+    <div class="field">
+      <label for="exp_summary">Summary</label>
+      <textarea id="exp_summary" name="summary" rows="3"></textarea>
+    </div>
+    <div class="field">
+      <label for="exp_technologies">Technologies</label>
+      <input type="text" id="exp_technologies" name="technologies" placeholder="comma-separated">
+    </div>
+    <div class="field">
+      <label for="exp_visibility">Visibility</label>
+      <select id="exp_visibility" name="visibility">
+        {% for choice in visibility_choices %}
+        <option value="{{ choice }}" {% if choice == 'private' %}selected{% endif %}>{{ choice }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <button type="submit">Add experience</button>
+  </form>
+</section>
+
+<section id="projects">
+  <h2>Projects</h2>
+  {% if projects %}
+  <table>
+    <thead><tr><th>Name</th><th>Visibility</th><th></th></tr></thead>
+    <tbody>
+      {% for project in projects %}
+      <tr>
+        <td>{{ project.name }}</td>
+        <td><span class="badge">{{ project.visibility }}</span></td>
+        <td>
+          <form method="post" action="/public-cv/admin/projects/{{ project.id }}/delete" style="display:inline">
+            <button type="submit">Remove</button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p>No projects added yet.</p>
+  {% endif %}
+
+  <form method="post" action="/public-cv/admin/projects">
+    <div class="field">
+      <label for="proj_name">Name</label>
+      <input type="text" id="proj_name" name="name" required>
+    </div>
+    <div class="field">
+      <label for="proj_description">Description</label>
+      <textarea id="proj_description" name="description" rows="3"></textarea>
+    </div>
+    <div class="field">
+      <label for="proj_url">URL</label>
+      <input type="url" id="proj_url" name="url">
+    </div>
+    <div class="field">
+      <label for="proj_technologies">Technologies</label>
+      <input type="text" id="proj_technologies" name="technologies" placeholder="comma-separated">
+    </div>
+    <div class="field">
+      <label for="proj_visibility">Visibility</label>
+      <select id="proj_visibility" name="visibility">
+        {% for choice in visibility_choices %}
+        <option value="{{ choice }}" {% if choice == 'private' %}selected{% endif %}>{{ choice }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <button type="submit">Add project</button>
+  </form>
+</section>
 {% endblock %}

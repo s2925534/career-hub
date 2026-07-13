@@ -1,4 +1,19 @@
 {% extends "public/_base.html" %}
 {% block content %}
-<p>Placeholder for the public work history timeline. See <code>docs/public-cv-site.md</code>.</p>
+{% if experiences %}
+{% for exp in experiences %}
+<article>
+  <h2>{{ exp.title }} &mdash; {{ exp.company }}</h2>
+  <p>
+    {% if exp.location %}{{ exp.location }} &middot; {% endif %}
+    {{ exp.start_date }} &ndash; {{ exp.end_date or 'Present' }}
+    {% if exp.employment_type %} &middot; {{ exp.employment_type }}{% endif %}
+  </p>
+  {% if exp.summary %}<p>{{ exp.summary }}</p>{% endif %}
+  {% if exp.technologies %}<p><em>{{ exp.technologies }}</em></p>{% endif %}
+</article>
+{% endfor %}
+{% else %}
+<p>No public work history yet.</p>
+{% endif %}
 {% endblock %}

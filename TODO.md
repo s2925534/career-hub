@@ -90,18 +90,18 @@ committed, and pushed.
 
 ## Phase 6: Public CV Site Planning and MVP
 
-- [ ] Public/private profile split.
-- [ ] Public profile home page.
-- [ ] Experience page.
-- [ ] Skills page.
-- [ ] Projects page.
-- [ ] Contact page or contact instructions.
-- [ ] SEO metadata.
-- [ ] Sitemap.
-- [ ] Robots.txt.
-- [ ] Public/private visibility handling.
-- [ ] Deployer notes for the public CV domain.
-- [ ] Commit and push.
+- [x] Public/private profile split.
+- [x] Public profile home page.
+- [x] Experience page.
+- [x] Skills page.
+- [x] Projects page.
+- [x] Contact page or contact instructions.
+- [x] SEO metadata.
+- [x] Sitemap.
+- [x] Robots.txt.
+- [x] Public/private visibility handling.
+- [x] Deployer notes for the public CV domain.
+- [x] Commit and push.
 
 ## Phase 7: Resume Generation and Versioning
 
@@ -136,6 +136,7 @@ committed, and pushed.
 - [ ] Integrate with a self-hosted SSO provider later.
 - [ ] OIDC login.
 - [ ] Local auth fallback.
+- [ ] Passkey (WebAuthn) login as a local-auth option.
 - [ ] Admin user.
 - [ ] User roles.
 - [ ] Commit and push.
