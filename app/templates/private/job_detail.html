@@ -1,0 +1,52 @@
+{% extends "private/_base.html" %}
+{% block content %}
+<p><a href="/jobs">&larr; Back to jobs</a></p>
+
+{% if saved %}
+<p class="flash">Saved.</p>
+{% endif %}
+
+<section>
+  <form method="post" action="/jobs/{{ job.id }}">
+    <div class="field">
+      <label for="title">Title</label>
+      <input type="text" id="title" name="title" value="{{ job.title or '' }}">
+    </div>
+    <div class="field">
+      <label for="company">Company</label>
+      <input type="text" id="company" name="company" value="{{ job.company or '' }}">
+    </div>
+    <div class="field">
+      <label for="location">Location</label>
+      <input type="text" id="location" name="location" value="{{ job.location or '' }}">
+    </div>
+    <div class="field">
+      <label for="url">Job URL</label>
+      <input type="url" id="url" name="url" value="{{ job.url or '' }}">
+    </div>
+    <div class="field">
+      <label for="description">Job description</label>
+      <textarea id="description" name="description" rows="8">{{ job.description or '' }}</textarea>
+    </div>
+    <div class="field">
+      <label for="status">Status</label>
+      <select id="status" name="status">
+        {% for choice in status_choices %}
+        <option value="{{ choice }}" {% if job.status == choice %}selected{% endif %}>{{ choice }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="field">
+      <label for="follow_up_date">Follow-up date</label>
+      <input type="date" id="follow_up_date" name="follow_up_date" value="{{ job.follow_up_date or '' }}">
+    </div>
+    <div class="field">
+      <label for="notes">Notes</label>
+      <textarea id="notes" name="notes" rows="6">{{ job.notes or '' }}</textarea>
+    </div>
+    <button type="submit">Save job</button>
+  </form>
+</section>
+
+<p><span class="badge">source: {{ job.source }}</span> <span class="badge">added: {{ job.created_at }}</span></p>
+{% endblock %}

@@ -1,13 +1,14 @@
 -- Career Hub schema.
 --
 -- career_profile, public_profile, work_experiences, projects, resume_versions,
--- public_cv_versions, jobs, applications, contact_messages, seo_metadata, and
+-- public_cv_versions, applications, contact_messages, seo_metadata, and
 -- audit_log are still intentionally minimal placeholder tables (id, timestamps,
--- and a flexible JSON `data` column) -- they belong to later phases (3, 6, 7)
+-- and a flexible JSON `data` column) -- they belong to later phases (5, 6, 7)
 -- and haven't been designed yet. See docs/phase-plan.md.
 --
 -- candidate_profile, preferences, and skills were promoted to fully modeled
--- columns in Phase 2, per docs/profile-and-preferences.md.
+-- columns in Phase 2, per docs/profile-and-preferences.md. jobs was promoted
+-- in Phase 3, per docs/application-workflow.md.
 --
 -- NOTE: this project has no migration tooling yet (pre-1.0, no real user data).
 -- If you have a local SQLite file from before Phase 2, delete it and let
@@ -112,14 +113,20 @@ CREATE TABLE IF NOT EXISTS public_cv_versions (
     updated_at TEXT NOT NULL DEFAULT (datetime('now'))
 );
 
+-- source: manual | pasted | url. status: see docs/application-workflow.md
+-- ("Application Statuses") -- interested | drafting | ready_to_apply | applied |
+-- interview | offer | rejected | archived.
 CREATE TABLE IF NOT EXISTS jobs (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    title TEXT,
-    company TEXT,
-    url TEXT,
+    title TEXT NOT NULL DEFAULT '',
+    company TEXT NOT NULL DEFAULT '',
+    location TEXT NOT NULL DEFAULT '',
+    url TEXT NOT NULL DEFAULT '',
+    description TEXT NOT NULL DEFAULT '',
     source TEXT NOT NULL DEFAULT 'manual',
     status TEXT NOT NULL DEFAULT 'interested',
-    data TEXT NOT NULL DEFAULT '{}',
+    notes TEXT NOT NULL DEFAULT '',
+    follow_up_date TEXT,
     created_at TEXT NOT NULL DEFAULT (datetime('now')),
     updated_at TEXT NOT NULL DEFAULT (datetime('now'))
 );

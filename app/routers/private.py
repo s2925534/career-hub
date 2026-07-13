@@ -14,7 +14,7 @@ from fastapi import APIRouter, Form, HTTPException, Request, UploadFile
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 
-from app import profile_data, storage
+from app import jobs_data, profile_data, storage
 from app.site_context import is_private_allowed
 
 router = APIRouter()
@@ -204,8 +204,92 @@ def preferences_save(
 def jobs(request: Request):
     _guard(request)
     return templates.TemplateResponse(
-        request, "private/jobs.html", {"page_title": "Jobs"}
+        request,
+        "private/jobs.html",
+        {
+            "page_title": "Jobs",
+            "jobs": jobs_data.list_jobs(),
+            "source_choices": jobs_data.SOURCE_CHOICES,
+        },
     )
+
+
+@router.post("/jobs")
+def jobs_create(
+    request: Request,
+    title: str = Form(""),
+    company: str = Form(""),
+    location: str = Form(""),
+    url: str = Form(""),
+    description: str = Form(""),
+    source: str = Form("manual"),
+):
+    _guard(request)
+    if source not in jobs_data.SOURCE_CHOICES:
+        source = "manual"
+    job_id = jobs_data.create_job(
+        {
+            "title": title.strip(),
+            "company": company.strip(),
+            "location": location.strip(),
+            "url": url.strip(),
+            "description": description.strip(),
+            "source": source,
+        }
+    )
+    return RedirectResponse(url=f"/jobs/{job_id}", status_code=303)
+
+
+@router.get("/jobs/{job_id}", response_class=HTMLResponse)
+def job_detail(request: Request, job_id: int, saved: str | None = None):
+    _guard(request)
+    job = jobs_data.get_job(job_id)
+    if job is None:
+        raise HTTPException(status_code=404)
+    return templates.TemplateResponse(
+        request,
+        "private/job_detail.html",
+        {
+            "page_title": job["title"] or "Job",
+            "job": job,
+            "status_choices": jobs_data.STATUS_CHOICES,
+            "saved": saved,
+        },
+    )
+
+
+@router.post("/jobs/{job_id}")
+def job_update(
+    request: Request,
+    job_id: int,
+    title: str = Form(""),
+    company: str = Form(""),
+    location: str = Form(""),
+    url: str = Form(""),
+    description: str = Form(""),
+    status: str = Form("interested"),
+    notes: str = Form(""),
+    follow_up_date: str = Form(""),
+):
+    _guard(request)
+    if jobs_data.get_job(job_id) is None:
+        raise HTTPException(status_code=404)
+    if status not in jobs_data.STATUS_CHOICES:
+        status = "interested"
+    jobs_data.update_job(
+        job_id,
+        {
+            "title": title.strip(),
+            "company": company.strip(),
+            "location": location.strip(),
+            "url": url.strip(),
+            "description": description.strip(),
+            "status": status,
+            "notes": notes.strip(),
+            "follow_up_date": follow_up_date.strip() or None,
+        },
+    )
+    return RedirectResponse(url=f"/jobs/{job_id}?saved=1", status_code=303)
 
 
 @router.get("/applications", response_class=HTMLResponse)

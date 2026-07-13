@@ -59,15 +59,15 @@ committed, and pushed.
 
 ## Phase 3: Job Tracker
 
-- [ ] Add job manually.
-- [ ] Paste job description.
-- [ ] Store job URL.
-- [ ] Job list.
-- [ ] Job detail page.
-- [ ] Status workflow.
-- [ ] Notes.
-- [ ] Follow-up dates.
-- [ ] Commit and push.
+- [x] Add job manually.
+- [x] Paste job description.
+- [x] Store job URL.
+- [x] Job list.
+- [x] Job detail page.
+- [x] Status workflow.
+- [x] Notes.
+- [x] Follow-up dates.
+- [x] Commit and push.
 
 ## Phase 4: Job Matching and Ranking
 

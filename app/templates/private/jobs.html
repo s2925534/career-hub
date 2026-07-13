@@ -1,5 +1,63 @@
 {% extends "private/_base.html" %}
 {% block content %}
-<p>Placeholder for the job tracker (Phase 3). See
-<code>docs/application-workflow.md</code> and <code>docs/job-source-strategy.md</code>.</p>
+<p>Manual job tracker. Add a job by title/company, a job URL, or a pasted description. See
+<code>docs/application-workflow.md</code> for the status workflow and
+<code>docs/job-source-strategy.md</code> for allowed sources &mdash; no scraping, ever.</p>
+
+<section>
+  <h2>Tracked Jobs</h2>
+  {% if jobs %}
+  <table>
+    <thead><tr><th>Title</th><th>Company</th><th>Status</th><th>Follow-up</th><th></th></tr></thead>
+    <tbody>
+      {% for job in jobs %}
+      <tr>
+        <td>{{ job.title or '(untitled)' }}</td>
+        <td>{{ job.company }}</td>
+        <td><span class="badge">{{ job.status }}</span></td>
+        <td>{{ job.follow_up_date or '' }}</td>
+        <td><a href="/jobs/{{ job.id }}">View</a></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p>No jobs tracked yet.</p>
+  {% endif %}
+</section>
+
+<section>
+  <h2>Add a Job</h2>
+  <form method="post" action="/jobs">
+    <div class="field">
+      <label for="title">Title</label>
+      <input type="text" id="title" name="title" placeholder="e.g. Senior Backend Engineer">
+    </div>
+    <div class="field">
+      <label for="company">Company</label>
+      <input type="text" id="company" name="company">
+    </div>
+    <div class="field">
+      <label for="location">Location</label>
+      <input type="text" id="location" name="location">
+    </div>
+    <div class="field">
+      <label for="url">Job URL</label>
+      <input type="url" id="url" name="url" placeholder="https://...">
+    </div>
+    <div class="field">
+      <label for="source">Source</label>
+      <select id="source" name="source">
+        {% for choice in source_choices %}
+        <option value="{{ choice }}" {% if choice == 'manual' %}selected{% endif %}>{{ choice }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="field">
+      <label for="description">Job description (paste)</label>
+      <textarea id="description" name="description" rows="6"></textarea>
+    </div>
+    <button type="submit">Add job</button>
+  </form>
+</section>
 {% endblock %}
