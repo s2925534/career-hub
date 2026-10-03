@@ -43,3 +43,6 @@ dist/
 
 # Auto-generated todo ledger view
 TODO.html
+
+# Verbatim journal index: machine-local transcript paths, not portable
+/agent-context/journal-verbatim/
