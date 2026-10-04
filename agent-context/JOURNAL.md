@@ -20,6 +20,21 @@ remote sessions.
 
 ---
 
+## 2026-10-04: fastapi and starlette security upgrade
+
+Bumped fastapi 0.115.6 to 0.142.2 and added an explicit pin for starlette
+1.7.0 (previously pulled in transitively at 0.41.3). pip-audit reported 7
+starlette advisories (14 rows), the newest fixed only in starlette 1.3.1, so
+the 1.x major was required; fastapi 0.115.x caps starlette below 0.42.
+Starlette is now pinned directly so the fix cannot silently regress through
+fastapi's open-ended `starlette>=0.46.0` range. The app already used the
+`lifespan` handler and the request-first `TemplateResponse(request, name,
+ctx)` signature, so no code changes were needed. Verified with an end to end
+smoke run (every GET and POST route, file upload, publish flow, host-based
+404 guard) against uvicorn before and after: status codes, redirects and
+normalised response bodies were identical. There is no automated test suite
+yet.
+
 ## 2026-10-03: journal set up
 
 Added this journal, the verbatim-index hook (`.githooks/post-commit`) and
